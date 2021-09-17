@@ -27,24 +27,25 @@ bbox
 
 def main(args):
     RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
-    SAVE_PATH = os.path.join(RESULT_DIR, f"rank_{args.local_rank}.json")
-    
+
     overlap_thresh = 0.51
     topk = -1
 
     bbox_dict = defaultdict(list)
     for root, dirs, files in os.walk(RESULT_DIR):
         for name in files:
-            prefix = f'bbox_{args.local_rank}_'
+            prefix = f'bbox_{args.gpu_id}_'
             if name.startswith(prefix):
                 file, ext = os.path.splitext(name)
                 sub = file.split('_')[-1]
                 bbox_dict[sub].append(os.path.join(root, name))
 
-    nms_res = []
-    for bbox_fn_list in bbox_dict.values():
+    for sub_name, bbox_fn_list in bbox_dict.items():
+        idx = 0
         bbox_list = []
         for fn in bbox_fn_list:
+            idx += 1
+            print(f"[{idx}/{len(bbox_fn_list)}] loading {fn}")
             with open(fn, 'r') as f:
                 sub_res = json.load(f)
             bbox_list.append(sub_res)
@@ -54,14 +55,17 @@ def main(args):
         img_bbox_map = defaultdict(list)
         img_scores_map = defaultdict(list)
         img_labels_map = defaultdict(list)
-        for ann in bbox:
+        print("img map")
+        for ann in tqdm.tqdm(bbox):
             image_id = ann["image_id"]
             img_ids.add(image_id)
             img_bbox_map[image_id].append(ann['bbox'])
             img_scores_map[image_id].append(ann['score'])
             img_labels_map[image_id].append(ann['category_id'])
 
-        for image_id in list(img_ids):
+        nms_res = []
+        print("nms")
+        for image_id in tqdm.tqdm(list(img_ids)):
             bboxes_list = img_bbox_map[image_id]
             scores_list = img_scores_map[image_id]
             labels_list = img_labels_map[image_id]
@@ -74,7 +78,20 @@ def main(args):
             labels = torch.from_numpy(labels_np).cuda()
             bboxes[:, 2:] += bboxes[:, :2]
 
-            keep = ml_nms(bboxes, scores, labels, overlap_thresh, topk).cpu().tolist()
+            try:
+                keep = ml_nms(bboxes, scores, labels, overlap_thresh, topk).cpu().tolist()
+            except:
+                num = bboxes.size(0)
+                print(f"{args.gpu_id}_{sub_name}")
+                print(num)
+                b0 = num // 2
+                b1 = num - b0
+
+                k0 = ml_nms(bboxes[:b0], scores[:b0], labels[:b0], overlap_thresh, topk)
+                k1 = ml_nms(bboxes[b1:], scores[b1:], labels[b1:], overlap_thresh, topk)
+
+                k = torch.cat([k0, k1])
+                keep = ml_nms(bboxes[k], scores[k], labels[k], overlap_thresh, topk)
 
             for k in keep:
                 res = {
@@ -85,18 +102,22 @@ def main(args):
                 }
                 nms_res.append(res)
 
-        del sub_res, bbox_list, bbox
+        # save
+        SAVE_PATH = os.path.join(RESULT_DIR, f"nms_{args.gpu_id}_{sub_name}.json")
+        print(f"save to {SAVE_PATH}")
+        with open(SAVE_PATH, 'w') as f:
+            json.dump(nms_res, f)
 
-    # save
-    print(f"save to {SAVE_PATH}")
-    with open(SAVE_PATH, 'w') as f:
-        json.dump(nms_res, f)
+        del bbox_list
+        del bbox
+        del nms_res
 
 
 if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser(description="merge_bbox_ms_res")
     parser.add_argument("--local_rank", type=int, default=0)
+    parser.add_argument("--gpu_id", type=int, default=0)
     args = parser.parse_args()
 
     torch.cuda.set_device(args.local_rank)

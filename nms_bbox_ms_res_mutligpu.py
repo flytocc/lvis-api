@@ -36,6 +36,7 @@ def main():
     args = parse_args()
 
     # world size in terms of number of processes
+    gpus = list(map(int, args.gpu_id.split(",")))
     num_gpus = len(args.gpu_id.split(","))
     dist_world_size = num_gpus
 
@@ -67,6 +68,7 @@ def main():
         cmd = [
             sys.executable,
             "-u", "nms_bbox_ms_res.py",
+            f"--gpu_id={gpus[local_rank]}",
             f"--local_rank={local_rank}",
         ]
 
