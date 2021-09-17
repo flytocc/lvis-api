@@ -106,9 +106,9 @@ class LVISResults(LVIS):
         for cat, cat_anns in by_cat.items():
             if len(cat_anns) < max_dets:
                 fewer_dets_cats.add(cat)
-            results.extend(
-                sorted(cat_anns, key=lambda x: x["score"], reverse=True)[:max_dets]
-            )
+            elif len(cat_anns) > max_dets:
+                cat_anns = sorted(cat_anns, key=lambda x: x["score"], reverse=True)[:max_dets]
+            results.extend(cat_anns)
         if fewer_dets_cats:
             self.logger.warning(
                 f"{len(fewer_dets_cats)} categories had less than {max_dets} "

@@ -83,7 +83,9 @@ class LVIS:
                                                                                         dilation_ratio=self.dilation_ratio,
                                                                                         max_cpu_num=self.max_cpu_num)
 
-            self.logger.info('`boundary` added! (t={:0.2f}s)'.format(time.time()- tic))
+            msg = '`boundary` added! (t={:0.2f}s)'.format(time.time()- tic)
+            print(msg)
+            self.logger.info(msg)
 
         for ann in self.dataset["annotations"]:
             self.img_ann_map[ann["image_id"]].append(ann)

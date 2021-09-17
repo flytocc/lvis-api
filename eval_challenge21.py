@@ -9,6 +9,7 @@ LVIS.sub_size = 2005000
 
 ANNOTATION_PATH = "/home/user/Database/COCO/annotations/lvis/lvis_v1_val.json"
 RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
+RESULT_PATH = os.path.join(RESULT_DIR, 'merged_segm_10k_dets_per_cat.json')
 
 print("create lvis_gt")
 lvis_gt = LVIS(ANNOTATION_PATH, precompute_boundary=True)
@@ -31,15 +32,8 @@ lvis_gt = LVIS(ANNOTATION_PATH, precompute_boundary=True)
 # del bbox_eval, bbox_dt, bbox
 
 print("load segm res")
-segm_list = []
-for root, dirs, files in os.walk(RESULT_DIR):
-    for name in files:
-        if name.startswith('segm_'):
-            fn = os.path.join(root, name)
-            with open(fn, 'r') as f:
-                sub_res = json.load(f)
-            segm_list.append(sub_res)
-segm = list(itertools.chain.from_iterable(segm_list))
+with open(RESULT_PATH, 'r') as f:
+    segm = json.load(f)
 
 # segm_dt = LVISResults(lvis_gt, segm)
 # segm_eval = LVISEval(lvis_gt, segm_dt, iou_type='segm')
