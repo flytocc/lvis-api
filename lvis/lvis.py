@@ -19,6 +19,8 @@ from lvis.boundary_utils import augment_annotations_with_boundary_multi_core
 
 
 class LVIS:
+    sub_size = -1
+
     def __init__(self, annotation_path, precompute_boundary=False, dilation_ratio=0.02, max_cpu_num=80):
         """Class for reading and visualizing annotations.
         Args:
@@ -62,10 +64,24 @@ class LVIS:
             # add `boundary` to annotation
             self.logger.info('Adding `boundary` to annotation.')
             tic = time.time()
-            self.dataset["annotations"] = augment_annotations_with_boundary_multi_core(self.dataset["annotations"],
-                                                                                       self.imgs,
-                                                                                       dilation_ratio=self.dilation_ratio,
-                                                                                       max_cpu_num=self.max_cpu_num)
+
+            if self.sub_size > 0:
+                total_size = len(self.dataset["annotations"])
+                boundary_anns = []
+                for i in range(0, total_size, self.sub_size):
+                    sub_anns = self.dataset["annotations"][i: i + self.sub_size]
+                    print(f"run augment_annotations_with_boundary_multi_core on range: [{i}, {min(i + self.sub_size, total_size)})")
+                    sub_anns = augment_annotations_with_boundary_multi_core(sub_anns,
+                                                                            self.imgs,
+                                                                            dilation_ratio=self.dilation_ratio,
+                                                                            max_cpu_num=self.max_cpu_num)
+                    boundary_anns.extend(sub_anns)
+                self.dataset["annotations"] = boundary_anns
+            else:
+                self.dataset["annotations"] = augment_annotations_with_boundary_multi_core(self.dataset["annotations"],
+                                                                                        self.imgs,
+                                                                                        dilation_ratio=self.dilation_ratio,
+                                                                                        max_cpu_num=self.max_cpu_num)
 
             self.logger.info('`boundary` added! (t={:0.2f}s)'.format(time.time()- tic))
 
