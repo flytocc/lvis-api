@@ -31,8 +31,8 @@ def limit_dets_per_cat(anns, max_dets):
 
 if __name__ == '__main__':
     RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
-    SAVE_PATH = os.path.join(RESULT_DIR, 'merged_segm_10k_dets_per_cat.json')
-    prefix = 'segm_'
+    SAVE_PATH = os.path.join(RESULT_DIR, f'merged_bbox_10k_dets_per_cat.json')
+    prefix = f'nms_'
 
     print("load segm res")
     segm_list = []
