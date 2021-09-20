@@ -24,11 +24,13 @@ bbox
 }
 """
 
+SUB_SIZE = 200000
+
 
 def main(args):
     RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
 
-    overlap_thresh = 0.51
+    overlap_thresh = 0.5
     topk = -1
 
     bbox_dict = defaultdict(list)
@@ -78,20 +80,29 @@ def main(args):
             labels = torch.from_numpy(labels_np).cuda()
             bboxes[:, 2:] += bboxes[:, :2]
 
-            try:
+            num_dets = len(bboxes)
+            if num_dets <= SUB_SIZE:
                 keep = ml_nms(bboxes, scores, labels, overlap_thresh, topk).cpu().tolist()
-            except:
-                num = bboxes.size(0)
-                print(f"{args.gpu_id}_{sub_name}")
-                print(num)
-                b0 = num // 2
-                b1 = num - b0
+            else:
+                print(f"{args.gpu_id}_{sub_name}: {num_dets}")
 
-                k0 = ml_nms(bboxes[:b0], scores[:b0], labels[:b0], overlap_thresh, topk)
-                k1 = ml_nms(bboxes[b1:], scores[b1:], labels[b1:], overlap_thresh, topk)
+                cat_ids = np.unique(labels_np).tolist()
+                subs = defaultdict(list)
+                conut = 0
+                for cat in cat_ids:
+                    label_inds: torch.Tensor = (labels == cat).nonzero().squeeze()
+                    conut += label_inds.numel()
+                    subs[conut // SUB_SIZE].append(label_inds)
 
-                k = torch.cat([k0, k1])
-                keep = ml_nms(bboxes[k], scores[k], labels[k], overlap_thresh, topk)
+                keep = []
+                for sub in subs.values():
+                    inds = torch.cat(sub)
+                    k = ml_nms(bboxes[inds], scores[inds], labels[inds], overlap_thresh, topk)
+                    keep.append(k)
+                keep = torch.cat(keep).cpu().tolist()
+
+                del subs
+                torch.cuda.empty_cache()
 
             for k in keep:
                 res = {
@@ -103,7 +114,7 @@ def main(args):
                 nms_res.append(res)
 
         # save
-        SAVE_PATH = os.path.join(RESULT_DIR, f"nms_{args.gpu_id}_{sub_name}.json")
+        SAVE_PATH = os.path.join(RESULT_DIR, f"nms_bbox_{args.gpu_id}_{sub_name}.json")
         print(f"save to {SAVE_PATH}")
         with open(SAVE_PATH, 'w') as f:
             json.dump(nms_res, f)
@@ -111,6 +122,7 @@ def main(args):
         del bbox_list
         del bbox
         del nms_res
+        torch.cuda.empty_cache()
 
 
 if __name__ == "__main__":
