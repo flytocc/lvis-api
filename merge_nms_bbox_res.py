@@ -51,6 +51,12 @@ if __name__ == '__main__':
     print("run limit_dets_per_cat")
     bbox_10k_dets_per_cat = limit_dets_per_cat(bbox, 10000)
 
+    print("set ann id")
+    ann_id = 1
+    for ann in bbox_10k_dets_per_cat:
+        ann['id'] = ann_id
+        ann_id = ann_id + 1
+
     if len(bbox_10k_dets_per_cat) > 0:
         print(f"save to {SAVE_PATH}")
         with open(SAVE_PATH, 'w') as f:
