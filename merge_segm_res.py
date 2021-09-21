@@ -51,6 +51,7 @@ if __name__ == '__main__':
     print("run limit_dets_per_cat")
     segm_10k_dets_per_cat = limit_dets_per_cat(segm, 10000)
 
-    print(f"save to {SAVE_PATH}")
-    with open(SAVE_PATH, 'w') as f:
-        json.dump(segm_10k_dets_per_cat, f)
+    if len(segm_10k_dets_per_cat) > 0:
+        print(f"save to {SAVE_PATH}")
+        with open(SAVE_PATH, 'w') as f:
+            json.dump(segm_10k_dets_per_cat, f)
