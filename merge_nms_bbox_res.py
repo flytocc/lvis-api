@@ -34,8 +34,8 @@ if __name__ == '__main__':
     SAVE_PATH = os.path.join(RESULT_DIR, f'merged_bbox_10k_dets_per_cat.json')
     prefix = f'nms_bbox_'
 
-    print("load segm res")
-    segm_list = []
+    print("load bbox res")
+    bbox_list = []
     for root, dirs, files in os.walk(RESULT_DIR):
         idx = 0
         for name in files:
@@ -45,13 +45,13 @@ if __name__ == '__main__':
                 print(f"{idx}) loading {fn}")
                 with open(fn, 'r') as f:
                     sub_res = json.load(f)
-                segm_list.append(sub_res)
-    segm = itertools.chain.from_iterable(segm_list)
+                bbox_list.append(sub_res)
+    bbox = itertools.chain.from_iterable(bbox_list)
 
     print("run limit_dets_per_cat")
-    segm_10k_dets_per_cat = limit_dets_per_cat(segm, 10000)
+    bbox_10k_dets_per_cat = limit_dets_per_cat(bbox, 10000)
 
-    if len(segm_10k_dets_per_cat) > 0:
+    if len(bbox_10k_dets_per_cat) > 0:
         print(f"save to {SAVE_PATH}")
         with open(SAVE_PATH, 'w') as f:
-            json.dump(segm_10k_dets_per_cat, f)
+            json.dump(bbox_10k_dets_per_cat, f)

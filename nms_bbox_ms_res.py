@@ -29,12 +29,17 @@ SUB_SIZE = 200000
 
 def main(args):
     RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
+    # scales = ['500', '600', '700', '800', '900', '1000', '1100', '1200']
+    scales = ['600', '700', '800', '900', '1000']
 
     overlap_thresh = 0.5
     topk = -1
 
     bbox_dict = defaultdict(list)
     for root, dirs, files in os.walk(RESULT_DIR):
+        scale = root.split('/')[-1]
+        if scale not in scales:
+            continue
         for name in files:
             prefix = f'bbox_{args.gpu_id}_'
             if name.startswith(prefix):
@@ -102,7 +107,6 @@ def main(args):
                 keep = torch.cat(keep).cpu().tolist()
 
                 del subs
-                torch.cuda.empty_cache()
 
             for k in keep:
                 res = {
