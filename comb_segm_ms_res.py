@@ -100,8 +100,12 @@ def main(args):
 
     count = 0
     for sub_name, segm_fn_list in seg_dict.items():
+        SAVE_PATH = os.path.join(RESULT_DIR, f"comb_segm_{args.gpu_id}_{sub_name}.json")
+        if os.path.exists(SAVE_PATH):
+            continue
+
         count += 1
-        print('-' * 50 + count + '-' * 50)
+        print('-' * 50 + str(count) + '-' * 50)
         idx = 0
         segm_list = []
         for fn in segm_fn_list:
@@ -167,7 +171,6 @@ def main(args):
             comb_res.append(res)
 
         # save
-        SAVE_PATH = os.path.join(RESULT_DIR, f"comb_segm_{args.gpu_id}_{sub_name}.json")
         print(f"save to {SAVE_PATH}")
         with open(SAVE_PATH, 'w') as f:
             json.dump(comb_res, f)
