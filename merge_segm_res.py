@@ -32,11 +32,15 @@ def limit_dets_per_cat(anns, max_dets):
 if __name__ == '__main__':
     RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
     SAVE_PATH = os.path.join(RESULT_DIR, 'merged_segm_10k_dets_per_cat.json')
+    scales = ['800']
     prefix = 'segm_'
 
     print("load segm res")
     segm_list = []
     for root, dirs, files in os.walk(RESULT_DIR):
+        scale = root.split('/')[-1]
+        if scale not in scales:
+            continue
         idx = 0
         for name in files:
             if name.startswith(prefix):
