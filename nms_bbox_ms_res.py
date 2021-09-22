@@ -28,7 +28,8 @@ SUB_SIZE = 200000
 
 
 def main(args):
-    RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
+    RESULT_DIR = "/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GCE_fed_rfs_1x_ms-pretrained@obj365v1/res"
+    # RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
     # scales = ['500', '600', '700', '800', '900', '1000', '1100', '1200']
     scales = ['600', '700', '800', '900', '1000']
 

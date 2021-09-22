@@ -30,7 +30,8 @@ def limit_dets_per_cat(anns, max_dets):
 
 
 if __name__ == '__main__':
-    RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
+    RESULT_DIR = "/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GCE_fed_rfs_1x_ms-pretrained@obj365v1/res"
+    # RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
     SAVE_PATH = os.path.join(RESULT_DIR, 'merged_segm_10k_dets_per_cat.json')
     scales = ['800']
     prefix = 'segm_'
