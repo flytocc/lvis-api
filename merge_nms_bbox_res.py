@@ -50,7 +50,7 @@ if __name__ == '__main__':
     bbox = itertools.chain.from_iterable(bbox_list)
 
     print("run limit_dets_per_cat")
-    bbox_10k_dets_per_cat = limit_dets_per_cat(bbox, 10000)
+    bbox_10k_dets_per_cat = limit_dets_per_cat(bbox, 13000)
 
     print("set ann id")
     ann_id = 1
