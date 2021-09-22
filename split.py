@@ -21,6 +21,11 @@ if __name__ == '__main__':
         idx = 0
         for name in files:
             if name.startswith(prefix):
+                filename, ext= os.path.splitext(name)
+                if ext != '.pth':
+                    continue
+                if os.path.exists(os.path.join(root, filename + '_s.json')):
+                    continue
                 idx += 1
                 fn = os.path.join(root, name)
                 print(f"{idx}) loading {fn}")
@@ -31,6 +36,7 @@ if __name__ == '__main__':
                     r.pop("width")
                     r.pop("height")
                     r.pop("bbox")
+                    r.pop("bbox_score")
 
                 name, ext = os.path.splitext(fn)
                 SAVE_PATH = name + '_s' + '.json'
