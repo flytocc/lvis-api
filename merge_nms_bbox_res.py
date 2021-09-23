@@ -32,7 +32,7 @@ def limit_dets_per_cat(anns, max_dets):
 if __name__ == '__main__':
     RESULT_DIR = "/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GCE_fed_rfs_1x_ms-pretrained@obj365v1/res"
     # RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
-    SAVE_PATH = os.path.join(RESULT_DIR, f'merged_bbox_10k_dets_per_cat.json')
+    SAVE_PATH = os.path.join(RESULT_DIR, f'merged_bbox_13k_dets_per_cat.json')
     prefix = f'nms_bbox_'
 
     print("load bbox res")
@@ -50,15 +50,15 @@ if __name__ == '__main__':
     bbox = itertools.chain.from_iterable(bbox_list)
 
     print("run limit_dets_per_cat")
-    bbox_10k_dets_per_cat = limit_dets_per_cat(bbox, 13000)
+    bbox_13k_dets_per_cat = limit_dets_per_cat(bbox, 13000)
 
     print("set ann id")
     ann_id = 1
-    for ann in bbox_10k_dets_per_cat:
+    for ann in bbox_13k_dets_per_cat:
         ann['id'] = ann_id
         ann_id = ann_id + 1
 
-    if len(bbox_10k_dets_per_cat) > 0:
+    if len(bbox_13k_dets_per_cat) > 0:
         print(f"save to {SAVE_PATH}")
         with open(SAVE_PATH, 'w') as f:
-            json.dump(bbox_10k_dets_per_cat, f)
+            json.dump(bbox_13k_dets_per_cat, f)
