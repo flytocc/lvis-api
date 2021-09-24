@@ -1,10 +1,10 @@
 import argparse
-from lvis import LVISEval
 import time
+
+from lvis import LVISEval
 
 
 def main(args):
-    start_time = time.time()
     if args.mode in ('bbox', 'segm'):
         lvis_eval = LVISEval(args.ann, args.res, iou_type=args.mode)
     elif args.mode == 'boundary':
@@ -13,7 +13,6 @@ def main(args):
         raise ValueError(f"Unsupported mode: {args.mode}")
     lvis_eval.run()
     lvis_eval.print_results()
-    print(f"Total time: {time.time() - start_time}")
 
 
 if __name__ == "__main__":
@@ -24,4 +23,6 @@ if __name__ == "__main__":
     parser.add_argument('--mode', choices=('bbox', 'segm', 'boundary'), type=str, default='bbox')
     args = parser.parse_args()
 
+    start_time = time.time()
     main(args)
+    print(f"Total time: {time.time() - start_time}")

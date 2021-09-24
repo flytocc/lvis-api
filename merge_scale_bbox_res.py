@@ -1,7 +1,8 @@
 import argparse
 import itertools
-import os
 import json
+import os
+import time
 import warnings
 from collections import defaultdict
 
@@ -76,4 +77,6 @@ if __name__ == '__main__':
     parser.add_argument('--limit', type=int, default=13000)
     args = parser.parse_args()
 
+    start_time = time.time()
     main(args)
+    print(f"Total time: {time.time() - start_time}")
