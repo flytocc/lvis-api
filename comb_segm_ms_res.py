@@ -62,14 +62,14 @@ def main(args):
 
     count = 0
     for sub_name, segm_fn_list in seg_dict.items():
-        filename = f"comb_segm_large_{args.gpu_id}_{sub_name}"
+        filename = f"comb_{args.prefix}{args.gpu_id}_{sub_name}"
         if use_max:
             filename = filename + "_max"
         elif use_softmax:
             filename = filename + "_softmax"
         filename = filename + ".json"
 
-        SAVE_PATH = os.path.join(args.res_dir, filename)
+        SAVE_PATH = os.path.join(args.res_dir, f"comb_{args.prefix}", filename)
         if os.path.exists(SAVE_PATH):
             continue
 
