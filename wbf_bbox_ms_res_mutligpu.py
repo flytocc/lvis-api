@@ -29,6 +29,14 @@ def parse_args():
                         type=str,
                         default="0,1,2,3,4,5,6,7",
                         help="gpu id for test")
+
+    parser.add_argument('--ann', type=str, default='/home/user/Database/MSCOCO2017/annotations/lvis/lvis_v1_val.json')
+    parser.add_argument('--res_dir', type=str, default='/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GCE-64ROI-MASKNORM_fed_rfs_0.5x_ms-pretrained@64ROI/res')
+    parser.add_argument('--scales', type=str, default='600 700 800 900 1000 1100 1200')
+    parser.add_argument('--weigths', type=str, default='45.6 47.3 48.2 48.5 48.9 48.4 48.6')
+    parser.add_argument('--conf_type', choices=('avg', 'max', 'box_and_model_avg', 'absent_model_aware_avg'), type=str, default='avg')
+    parser.add_argument('--overlap_thresh', type=float, default=0.55)
+
     return parser.parse_args()
 
 
@@ -70,6 +78,12 @@ def main():
             "-u", "wbf_bbox_ms_res.py",
             f"--gpu_id={gpus[local_rank]}",
             f"--local_rank={local_rank}",
+            f"--ann={args.ann}",
+            f"--res_dir={args.res_dir}",
+            f"--scales={args.scales}",
+            f"--weigths={args.weigths}",
+            f"--conf_type={args.conf_type}",
+            f"--overlap_thresh={args.overlap_thresh}",
         ]
 
         process = subprocess.Popen(cmd, env=current_env)

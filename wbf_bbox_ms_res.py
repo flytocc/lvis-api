@@ -1,7 +1,7 @@
 import argparse
 import itertools
-import os
 import json
+import os
 from collections import defaultdict
 
 import numpy as np
@@ -24,16 +24,8 @@ bbox
 
 
 def main(args):
-    ANNOTATION_PATH = "/home/user/Database/COCO/annotations/lvis/lvis_v1_val.json"
-    lvis_gt = LVIS(ANNOTATION_PATH)
-
-    RESULT_DIR = "/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GCE_fed_rfs_1x_ms-pretrained@obj365v1/res"
-    # RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
-    scales = ['600', '700', '800', '900', '1000']
-    model_weights = [45.1, 46.6, 47.4, 47.9, 48.2]
-
-    overlap_thresh = 0.5
-    conf_type = 'avg'
+    scales = args.scales.split(' ')
+    model_weights = list(map(float, args.weigths.split(' ')))
 
     assert len(scales) == len(model_weights)
     model_weights = np.array(model_weights)
@@ -41,7 +33,7 @@ def main(args):
     model_weights = model_weights.tolist()
 
     bbox_dict = defaultdict(list)
-    for root, dirs, files in os.walk(RESULT_DIR):
+    for root, dirs, files in os.walk(args.res_dir):
         scale = root.split('/')[-1]
         if scale not in scales:
             continue
@@ -52,8 +44,10 @@ def main(args):
                 sub = file.split('_')[-1]
                 bbox_dict[sub].append((scale, os.path.join(root, name)))
 
+    lvis_gt = LVIS(args.ann)
+
     for sub_name, bbox_fn_list in bbox_dict.items():
-        SAVE_PATH = os.path.join(RESULT_DIR, f"wbf_bbox_{args.gpu_id}_{sub_name}.json")
+        SAVE_PATH = os.path.join(args.res_dir, f"wbf_bbox_{args.gpu_id}_{sub_name}.json")
         if os.path.exists(SAVE_PATH):
             continue
 
@@ -104,13 +98,13 @@ def main(args):
                 [scores_list[s] for s in scales],
                 [labels_list[s] for s in scales],
                 weights=model_weights,
-                iou_thr=overlap_thresh,
-                conf_type=conf_type,
+                iou_thr=args.overlap_thresh,
+                conf_type=args.conf_type,
             )
 
             boxes[:, [0, 2]] *= im_w
             boxes[:, [1, 3]] *= im_h
-            boxes[:, 2:] -= boxes[:, :2]
+            boxes[:, 2:] -= boxes[:, :2]  # to xywh
             boxes = boxes.tolist()
             scores = scores.tolist()
             labels = labels.tolist()
@@ -132,7 +126,6 @@ def main(args):
         del bbox_list
         del bbox
         del nms_res
-        torch.cuda.empty_cache()
 
 
 if __name__ == "__main__":
@@ -140,6 +133,14 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="merge_bbox_ms_res")
     parser.add_argument("--local_rank", type=int, default=0)
     parser.add_argument("--gpu_id", type=int, default=0)
+
+    parser.add_argument('--ann', type=str, default='/home/user/Database/MSCOCO2017/annotations/lvis/lvis_v1_val.json')
+    parser.add_argument('--res_dir', type=str, default='/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GCE-64ROI-MASKNORM_fed_rfs_0.5x_ms-pretrained@64ROI/res')
+    parser.add_argument('--scales', type=str, default='600 700 800 900 1000 1100 1200')
+    parser.add_argument('--weigths', type=str, default='45.6 47.3 48.2 48.5 48.9 48.4 48.6')
+    parser.add_argument('--conf_type', choices=('avg', 'max', 'box_and_model_avg', 'absent_model_aware_avg'), type=str, default='avg')
+    parser.add_argument('--overlap_thresh', type=float, default=0.55)
+
     args = parser.parse_args()
 
     torch.cuda.set_device(args.local_rank)
