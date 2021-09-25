@@ -83,7 +83,7 @@ def main(args):
             img_scores_map[image_id][scale].append(ann['score'])
             img_labels_map[image_id][scale].append(ann['category_id'])
 
-        nms_res = []
+        wbf_res = []
         print("wbf")
         for image_id in tqdm.tqdm(list(img_ids)):
             image_info = lvis_gt.load_imgs([image_id])[0]
@@ -116,16 +116,16 @@ def main(args):
                     'bbox': b,
                     'score': s,
                 }
-                nms_res.append(res)
+                wbf_res.append(res)
 
         # save
         print(f"save to {SAVE_PATH}")
         with open(SAVE_PATH, 'w') as f:
-            json.dump(nms_res, f)
+            json.dump(wbf_res, f)
 
         del bbox_list
         del bbox
-        del nms_res
+        del wbf_res
 
 
 if __name__ == "__main__":
