@@ -32,7 +32,7 @@ def limit_dets_per_cat(anns, max_dets):
 
 
 def main(args):
-    SAVE_PATH = os.path.join(args.res_dir, f'merged_bbox_top{args.limit}_dets_per_cat_{args.scale}.json')
+    SAVE_PATH = os.path.join(args.res_dir, f'merged_{args.prefix}top{args.limit}_dets_per_cat_{args.scale}.json')
     if os.path.exists(SAVE_PATH):
         warnings.warn(f'file existed: {SAVE_PATH}')
         return
