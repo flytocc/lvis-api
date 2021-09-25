@@ -36,6 +36,7 @@ def parse_args():
     parser.add_argument('--weigths', type=str, default='45.6 47.3 48.2 48.5 48.9 48.4 48.6')
     parser.add_argument('--conf_type', choices=('avg', 'max', 'box_and_model_avg', 'absent_model_aware_avg'), type=str, default='avg')
     parser.add_argument('--overlap_thresh', type=float, default=0.55)
+    parser.add_argument('--prefix', type=str, default='bbox_')
 
     return parser.parse_args()
 
@@ -84,6 +85,7 @@ def main():
             f"--weigths={args.weigths}",
             f"--conf_type={args.conf_type}",
             f"--overlap_thresh={args.overlap_thresh}",
+            f"--prefix={args.prefix}",
         ]
 
         process = subprocess.Popen(cmd, env=current_env)

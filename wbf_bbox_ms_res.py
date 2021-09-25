@@ -38,7 +38,7 @@ def main(args):
         if scale not in scales:
             continue
         for name in files:
-            prefix = f'bbox_{args.gpu_id}_'
+            prefix = f'{args.prefix}{args.gpu_id}_'
             if name.startswith(prefix):
                 file, ext = os.path.splitext(name)
                 sub = file.split('_')[-1]
@@ -47,7 +47,7 @@ def main(args):
     lvis_gt = LVIS(args.ann)
 
     for sub_name, bbox_fn_list in bbox_dict.items():
-        SAVE_PATH = os.path.join(args.res_dir, f"wbf_bbox_{args.gpu_id}_{sub_name}.json")
+        SAVE_PATH = os.path.join(args.res_dir, f"wbf_{args.prefix}{args.gpu_id}_{sub_name}.json")
         if os.path.exists(SAVE_PATH):
             continue
 
@@ -140,6 +140,7 @@ if __name__ == "__main__":
     parser.add_argument('--weigths', type=str, default='45.6 47.3 48.2 48.5 48.9 48.4 48.6')
     parser.add_argument('--conf_type', choices=('avg', 'max', 'box_and_model_avg', 'absent_model_aware_avg'), type=str, default='avg')
     parser.add_argument('--overlap_thresh', type=float, default=0.55)
+    parser.add_argument('--prefix', type=str, default='bbox_')
 
     args = parser.parse_args()
 
