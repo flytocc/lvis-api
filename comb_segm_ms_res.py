@@ -57,6 +57,8 @@ def main(args):
             prefix = f'{args.prefix}{args.gpu_id}_'
             if name.startswith(prefix):
                 file, ext = os.path.splitext(name)
+                if ext != '.pth':
+                    continue
                 sub = file.split('_')[-1]
                 seg_dict[sub].append((scale, os.path.join(root, name)))
 
