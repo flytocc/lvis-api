@@ -4,5 +4,5 @@ RES_DIR="/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GC
 
 PYTHON=${PYTHON:-"python"}
 for SACLE in ${SCALES[@]};do
-    $PYTHON merge_bbox_res.py --res_dir $RES_DIR --scale res --prefix wbf_bbox_
+    $PYTHON merge_bbox_res.py --res_dir $RES_DIR --scale res --prefix wbf_bbox_ --limit 15000
 done
