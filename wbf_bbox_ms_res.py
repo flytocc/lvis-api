@@ -139,7 +139,7 @@ if __name__ == "__main__":
     parser.add_argument('--scales', type=str, default='600 700 800 900 1000 1100 1200')
     parser.add_argument('--weigths', type=str, default='45.6 47.3 48.2 48.5 48.9 48.4 48.6')
     parser.add_argument('--conf_type', choices=('avg', 'max', 'box_and_model_avg', 'absent_model_aware_avg'), type=str, default='avg')
-    parser.add_argument('--overlap_thresh', type=float, default=0.55)
+    parser.add_argument('--overlap_thresh', type=float, default=0.65)
     parser.add_argument('--prefix', type=str, default='bbox_')
 
     args = parser.parse_args()
