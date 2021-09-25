@@ -5,5 +5,5 @@ SCALES=$1  # "600 800 1000 1200"
 
 PYTHON=${PYTHON:-"python"}
 for SACLE in ${SCALES[@]};do
-    $PYTHON merge_segm_res.py --res_dir $RES_DIR --scale $SACLE --prefix split_segm_ --limit 10000
+    $PYTHON merge_res.py --res_dir $RES_DIR --scale $SACLE --prefix split_segm_ --limit 10000
 done
