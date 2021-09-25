@@ -21,7 +21,7 @@ def main(args):
                 if ext != '.pth':
                     continue
 
-                SAVE_PATH = os.path.join(root, filename + '_split.json')
+                SAVE_PATH = os.path.join(root, f'split_{filename}.json')
                 if os.path.exists(SAVE_PATH):
                     continue
 

@@ -1,6 +1,8 @@
+import argparse
 import itertools
-import os
 import json
+import os
+import time
 import warnings
 from collections import defaultdict
 
@@ -29,34 +31,49 @@ def limit_dets_per_cat(anns, max_dets):
     return results
 
 
-if __name__ == '__main__':
-    RESULT_DIR = "/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GCE_fed_rfs_1x_ms-pretrained@obj365v1/res"
-    # RESULT_DIR = "../Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-T-FPN-GCE_fed_rfs_1x_ms/res"
-    SAVE_PATH = os.path.join(RESULT_DIR, 'merged_segm_10k_dets_per_cat.json')
-    scales = ['800']
-    prefix = 'segm_'
+def main(args):
+    SAVE_PATH = os.path.join(args.res_dir, f'merged_{args.prefix}top{args.limit}_dets_per_cat_{args.scale}.json')
+    if os.path.exists(SAVE_PATH):
+        warnings.warn(f'file existed: {SAVE_PATH}')
+        return
 
     print("load segm res")
-    segm_list = []
-    for root, dirs, files in os.walk(RESULT_DIR):
+    segm_fn_list = []
+    for root, dirs, files in os.walk(args.res_dir, followlinks=True):
         scale = root.split('/')[-1]
-        if scale not in scales:
+        if args.scale != scale:
             continue
-        idx = 0
         for name in files:
-            if name.startswith(prefix):
-                idx += 1
+            if name.startswith(args.prefix):
                 fn = os.path.join(root, name)
-                print(f"{idx}) loading {fn}")
-                with open(fn, 'r') as f:
-                    sub_res = json.load(f)
-                segm_list.append(sub_res)
+                segm_fn_list.append(fn)
+
+    segm_list = []
+    for idx, fn in enumerate(segm_fn_list, 1):
+        print(f"[{idx}/{len(segm_fn_list)}] loading {fn}")
+        with open(fn, 'r') as f:
+            sub_res = json.load(f)
+        segm_list.append(sub_res)
     segm = itertools.chain.from_iterable(segm_list)
 
     print("run limit_dets_per_cat")
-    segm_10k_dets_per_cat = limit_dets_per_cat(segm, 10000)
+    segm_topk_dets_per_cat = limit_dets_per_cat(segm, args.limit)
 
-    if len(segm_10k_dets_per_cat) > 0:
+    if len(segm_topk_dets_per_cat) > 0:
         print(f"save to {SAVE_PATH}")
         with open(SAVE_PATH, 'w') as f:
-            json.dump(segm_10k_dets_per_cat, f)
+            json.dump(segm_topk_dets_per_cat, f)
+
+
+if __name__ == '__main__':
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="merge_scale_bbox_res")
+    parser.add_argument('--res_dir', type=str, default='/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GCE-64ROI-MASKNORM_fed_rfs_0.5x_ms-pretrained@64ROI/res')
+    parser.add_argument('--scale', type=str, default='800')
+    parser.add_argument('--prefix', type=str, default='split_segm_')
+    parser.add_argument('--limit', type=int, default=10000)
+    args = parser.parse_args()
+
+    start_time = time.time()
+    main(args)
+    print(f"Total time: {time.time() - start_time}")

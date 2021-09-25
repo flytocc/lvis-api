@@ -57,18 +57,18 @@ def main(args):
     bbox = itertools.chain.from_iterable(bbox_list)
 
     print("run limit_dets_per_cat")
-    bbox_13k_dets_per_cat = limit_dets_per_cat(bbox, args.limit)
+    bbox_topk_dets_per_cat = limit_dets_per_cat(bbox, args.limit)
 
     print("set ann id")
     ann_id = 1
-    for ann in bbox_13k_dets_per_cat:
+    for ann in bbox_topk_dets_per_cat:
         ann['id'] = ann_id
         ann_id = ann_id + 1
 
-    if len(bbox_13k_dets_per_cat) > 0:
+    if len(bbox_topk_dets_per_cat) > 0:
         print(f"save to {SAVE_PATH}")
         with open(SAVE_PATH, 'w') as f:
-            json.dump(bbox_13k_dets_per_cat, f)
+            json.dump(bbox_topk_dets_per_cat, f)
 
 
 if __name__ == '__main__':
