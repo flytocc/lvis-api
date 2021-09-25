@@ -133,7 +133,7 @@ def main(args):
 
 if __name__ == "__main__":
     # Parse arguments
-    parser = argparse.ArgumentParser(description="merge_bbox_ms_res")
+    parser = argparse.ArgumentParser(description="nms_bbox_ms_res")
     parser.add_argument("--local_rank", type=int, default=0)
     parser.add_argument("--gpu_id", type=int, default=0)
 
