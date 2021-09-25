@@ -59,11 +59,12 @@ def main(args):
     print("run limit_dets_per_cat")
     bbox_topk_dets_per_cat = limit_dets_per_cat(bbox, args.limit)
 
-    print("set ann id")
-    ann_id = 1
-    for ann in bbox_topk_dets_per_cat:
-        ann['id'] = ann_id
-        ann_id = ann_id + 1
+    if args.reset_id:
+        print("set ann id")
+        ann_id = 1
+        for ann in bbox_topk_dets_per_cat:
+            ann['id'] = ann_id
+            ann_id = ann_id + 1
 
     if len(bbox_topk_dets_per_cat) > 0:
         print(f"save to {SAVE_PATH}")
@@ -77,7 +78,8 @@ if __name__ == '__main__':
     parser.add_argument('--res_dir', type=str, default='/home/nieyang/Pet-dev/ckpts/cnn/LVIS/swin/centernet2-mask_SWIN-L-FPN-GCE-64ROI-MASKNORM_fed_rfs_0.5x_ms-pretrained@64ROI/res')
     parser.add_argument('--scale', type=str, default='800')
     parser.add_argument('--prefix', type=str, default='bbox_')
-    parser.add_argument('--limit', type=int, default=13000)
+    parser.add_argument('--limit', type=int, default=12000)
+    parser.add_argument('--reset_id', action='store_true')
     args = parser.parse_args()
 
     start_time = time.time()
